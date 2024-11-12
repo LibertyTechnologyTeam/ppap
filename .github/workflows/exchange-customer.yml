@@ -1,4 +1,4 @@
-name: PPAP
+name: Exchange Customer CI/CD
 
 on:
   repository_dispatch:
