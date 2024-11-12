@@ -3,7 +3,7 @@ name: PPAP
 on:
   repository_dispatch:
     types:
-      - exchange-customer
+      - exchange-customer-*
 
 env:
   APP_NAME: Exchange Customer
