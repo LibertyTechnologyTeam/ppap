@@ -126,6 +126,13 @@ jobs:
           token: ${{ env.GH_PAT }}
           ref: ${{ github.event.client_payload.ref_name}}
 
+      - name: Checkout secret
+        uses: actions/checkout@v4
+        with:
+          repository: ItLibertyTechnology/secret
+          token: ${{ env.GH_PAT }}
+          path: .github/data/key
+
       # - name: Setup env
       #   run: mv config/env/.env.${{ env.APP_VARIANT }} .env
 
