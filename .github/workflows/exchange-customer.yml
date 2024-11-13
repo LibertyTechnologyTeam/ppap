@@ -190,6 +190,21 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
+      # - name: Check cache Pods
+      #   if: matrix.format == 'IPA'
+      #   id: cache-primes
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ios/Pods
+      #       ios/Podfile.lock
+      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
+
+      - name: Pod install
+        # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
+        working-directory: ios
+        run: bundle exec pod install
+
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
         with:
