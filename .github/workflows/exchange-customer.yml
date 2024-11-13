@@ -59,7 +59,6 @@ jobs:
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
           # ios only
-          MATRIX="${{ toJson(env.BUILD_MATRIX_ANDROID) }}"
           echo "value=$MATRIX" >> $GITHUB_OUTPUT
 
       - name: Set env
