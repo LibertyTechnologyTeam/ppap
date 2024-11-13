@@ -202,6 +202,7 @@ jobs:
 
       - name: Pod install
         # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
+        if: matrix.format == 'IPA'
         working-directory: ios
         run: bundle exec pod install
 
