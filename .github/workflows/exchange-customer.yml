@@ -59,7 +59,7 @@ jobs:
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
           # ios only
-          MATRIX="${{ toJson(env.BUILD_MATRIX_IOS) }}"
+          MATRIX="${{ toJson(env.BUILD_MATRIX_ANDROID) }}"
           echo "value=$MATRIX" >> $GITHUB_OUTPUT
 
       - name: Set env
@@ -151,44 +151,30 @@ jobs:
       - name: Install fastlane plugins
         run: bundle exec fastlane install_plugins
 
-      # - name: Cache node_module
-      #   id: cache-node-module
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: node_modules
-      #     key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+      - name: Cache node_module
+        id: cache-node-module
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
 
-      # - name: Run yarn install
-      #   if: steps.cache-node-module.outputs.cache-hit != 'true'
-      #   uses: borales/actions-yarn@v5
-      #   with:
-      #     cmd: install --network-concurrency 1
+      - name: Run yarn install
+        if: steps.cache-node-module.outputs.cache-hit != 'true'
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: install --network-concurrency 1
 
-      # - name: Cache ios folder
-      #   if: matrix.platform == 'ios'
-      #   id: cache-prebuild
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ios
-      #     key: ${{ matrix.platform }}-${{ env.APP_VARIANT }}-cache-prebuild-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with:
+          java-version: 21
+          distribution: "temurin"
+          cache: "gradle"
 
-      # - name: Run expo prebuild ${{ matrix.platform }}
-      #   if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
-      #   uses: borales/actions-yarn@v5
-      #   with:
-      #     cmd: prebuild:${{ env.APP_VARIANT }} --platform ${{ matrix.platform }}
-
-      # - name: Set up JDK
-      #   uses: actions/setup-java@v4
-      #   if: matrix.platform == 'android'
-      #   with:
-      #     java-version: 21
-      #     distribution: "temurin"
-      #     cache: "gradle"
-
-      # - name: Setup Android SDK
-      #   if: matrix.platform == 'android'
-      #   uses: android-actions/setup-android@v3
+      - name: Setup Android SDK
+        if: matrix.platform == 'android'
+        uses: android-actions/setup-android@v3
 
       # - name: Cache ios deriveddata
       #   uses: irgaly/xcode-cache@v1
@@ -202,15 +188,15 @@ jobs:
         # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
         run: bundle exec fastlane ios certificates
 
-      # - name: Update version and build number
-      #   run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
+      - name: Update version and build number
+        run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      # - name: Build ${{ matrix.format }}
-      #   uses: nick-fields/retry@v3
-      #   with:
-      #     timeout_minutes: 60
-      #     max_attempts: 2
-      #     command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+      - name: Build ${{ matrix.format }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
       # - name: Deploy ${{ matrix.format }}
       #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
