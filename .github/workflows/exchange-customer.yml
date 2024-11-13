@@ -3,7 +3,7 @@ name: Exchange Customer CI/CD
 on:
   repository_dispatch:
     types:
-      - exchange-customer-*
+      - ExchangeCustomer-*
 
 env:
   APP_NAME: Exchange Customer
