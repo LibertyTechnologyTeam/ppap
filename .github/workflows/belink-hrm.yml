@@ -1,4 +1,4 @@
-name: Exchange Customer CI/CD
+name: Belink HRM CI/CD
 
 on:
   repository_dispatch:
