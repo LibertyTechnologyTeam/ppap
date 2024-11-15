@@ -9,8 +9,8 @@ env:
   APP_NAME: Exchange Customer
   GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
   UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
-  BUILD_MATRIX: '[{"format":"ipa","name":"macos-14","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
-  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-14","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
+  BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
+  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
   # NODE_ENV: production
   BUILD_MATRIX_IOS: '[{"format":"ipa","name":"macos-15","platform":"ios"}]'
   BUILD_MATRIX_ANDROID: '[{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
