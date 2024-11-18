@@ -177,12 +177,11 @@ jobs:
         if: matrix.platform == 'ios'
         # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
         run: bundle exec fastlane ios certificates
-
-      - name: Setup env
-        run: .github/data/scripts/load_build.sh
-
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
+
+      - name: Setup config
+        run: .github/data/scripts/load_build.sh
 
       - name: Check cache Pods
         if: matrix.platform == 'IOS'
