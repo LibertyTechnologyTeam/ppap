@@ -132,8 +132,6 @@ jobs:
           token: ${{ env.GH_PAT }}
           path: .github/data/key
 
-      # - name: Setup env
-      #   run: mv config/env/.env.${{ env.APP_VARIANT }} .env
 
       - name: Setup nodejs
         uses: actions/setup-node@v4
@@ -180,18 +178,21 @@ jobs:
         # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
         run: bundle exec fastlane ios certificates
 
+      - name: Setup env
+        run: .github/data/scripts/load_build.sh
+
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      # - name: Check cache Pods
-      #   if: matrix.format == 'IPA'
-      #   id: cache-primes
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ios/Pods
-      #       ios/Podfile.lock
-      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
+      - name: Check cache Pods
+        if: matrix.platform == 'IOS'
+        id: cache-pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ios/Podfile.lock
+          key: vtd-cache-pods-${{ hashFiles('ios/Podfile.lock') }}        
 
       - name: Pod install
         # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
@@ -206,8 +207,8 @@ jobs:
           max_attempts: 2
           command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      # - name: Deploy ${{ matrix.format }}
-      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
+      - name: Deploy ${{ matrix.format }}
+        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
