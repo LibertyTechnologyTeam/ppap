@@ -217,15 +217,15 @@ jobs:
       - name: Config environment
         run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
 
-      - name: Build ${{ matrix.format }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+      # - name: Build ${{ matrix.format }}
+      #   uses: nick-fields/retry@v3
+      #   with:
+      #     timeout_minutes: 60
+      #     max_attempts: 2
+      #     command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      - name: Deploy ${{ matrix.format }}
-        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
+      # - name: Deploy ${{ matrix.format }}
+      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
