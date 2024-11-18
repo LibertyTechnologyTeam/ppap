@@ -175,30 +175,12 @@ jobs:
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
 
-      # - name: Cache ios deriveddata
-      #   uses: irgaly/xcode-cache@v1
-      #   if: matrix.platform == 'ios'
-      #   with:
-      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
-      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
-
       - name: Fastlane match
         if: matrix.platform == 'ios'
-        # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
         run: bundle exec fastlane ios certificates
 
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
-
-      # - name: Check cache Pods
-      #   if: matrix.format == 'IPA'
-      #   id: cache-primes
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ios/Pods
-      #       ios/Podfile.lock
-      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
 
       - name: Pod install
         # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
@@ -217,15 +199,15 @@ jobs:
       - name: Config environment
         run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
 
-      # - name: Build ${{ matrix.format }}
-      #   uses: nick-fields/retry@v3
-      #   with:
-      #     timeout_minutes: 60
-      #     max_attempts: 2
-      #     command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+      - name: Build ${{ matrix.format }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      # - name: Deploy ${{ matrix.format }}
-      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
+      - name: Deploy ${{ matrix.format }}
+        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
