@@ -150,12 +150,12 @@ jobs:
       - name: Install fastlane plugins
         run: bundle exec fastlane install_plugins
 
-      - name: Cache node_module
-        id: cache-node-module
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+      # - name: Cache node_module
+      #   id: cache-node-module
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: node_modules
+      #     key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn install
         if: steps.cache-node-module.outputs.cache-hit != 'true'
