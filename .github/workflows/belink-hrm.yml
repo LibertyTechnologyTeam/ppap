@@ -11,6 +11,7 @@ env:
   UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
   BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
   BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
+  
   # NODE_ENV: production
   BUILD_MATRIX_IOS: '[{"format":"ipa","name":"macos-15","platform":"ios"}]'
   BUILD_MATRIX_ANDROID: '[{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
@@ -54,7 +55,7 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-          MATRIX="${{ toJson(env.BUILD_MATRIX) }}"
+          MATRIX="${{ toJson(env.BUILD_MATRIX_IOS) }}"
           if [[ "$REF_NAME" =~ "prd" ]]; then
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
@@ -182,11 +183,11 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      - name: Pod install
-        # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
-        if: matrix.format == 'IPA'
-        working-directory: ios
-        run: bundle exec pod install
+      # - name: Pod install
+      #   # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
+      #   if: matrix.format == 'IPA'
+      #   working-directory: ios
+      #   run: bundle exec pod install
 
       # config environment
 
@@ -199,15 +200,21 @@ jobs:
       - name: Config environment
         run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
 
-      - name: Build ${{ matrix.format }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+      - name: Check file
+        run: | 
+          ls -la
+          ls -la ios
+          echo ${{ env.GH_PAT }}
 
-      - name: Deploy ${{ matrix.format }}
-        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
+      # - name: Build ${{ matrix.format }}
+      #   uses: nick-fields/retry@v3
+      #   with:
+      #     timeout_minutes: 60
+      #     max_attempts: 2
+      #     command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+
+      # - name: Deploy ${{ matrix.format }}
+      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
