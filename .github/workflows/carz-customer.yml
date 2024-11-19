@@ -1,16 +1,16 @@
-name: Belink HRM CI/CD
+name: Carz Customer CI/CD
 
 on:
   repository_dispatch:
     types:
-      - BelinkHrm-*
+      - CarzCustomer-*
 
 env:
-  APP_NAME: Belink HRM
+  APP_NAME: Exchange Customer
   GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
   UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
-  BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
-  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
+  BUILD_MATRIX: '[{"format":"ipa","name":"macos-14","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
+  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-14","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
   # NODE_ENV: production
   BUILD_MATRIX_IOS: '[{"format":"ipa","name":"macos-15","platform":"ios"}]'
   BUILD_MATRIX_ANDROID: '[{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
@@ -24,7 +24,7 @@ env:
   TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
 
   # config
-  SOURCE_REPOSITORY: LibertyHRM/rn-hrm-mobile
+  SOURCE_REPOSITORY: LibertyCarz/rn-carz-customer
 
 jobs:
   init:
@@ -150,12 +150,12 @@ jobs:
       - name: Install fastlane plugins
         run: bundle exec fastlane install_plugins
 
-      # - name: Cache node_module
-      #   id: cache-node-module
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: node_modules
-      #     key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+      - name: Cache node_module
+        id: cache-node-module
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn install
         if: steps.cache-node-module.outputs.cache-hit != 'true'
@@ -206,17 +206,6 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-      # config env
-
-      - name: Load secret files
-        run: bash scripts/load_secret_file.sh
-
-      - name: Change version and build number
-        run: bash scripts/change_version_and_build_number.sh
-
-      - name: Config environment
-        run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
-
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
         with:
@@ -224,8 +213,8 @@ jobs:
           max_attempts: 2
           command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      - name: Deploy ${{ matrix.format }}
-        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
+      # - name: Deploy ${{ matrix.format }}
+      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
