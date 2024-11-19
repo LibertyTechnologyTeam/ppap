@@ -208,6 +208,15 @@ jobs:
 
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
+        if: matrix.platform == 'ios'
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }} --verbose
+
+      - name: Build ${{ matrix.format }}
+        uses: nick-fields/retry@v3
+        if: matrix.platform == 'android'
         with:
           timeout_minutes: 60
           max_attempts: 2
