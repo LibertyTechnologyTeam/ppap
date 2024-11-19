@@ -206,7 +206,7 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-      - name: Build ${{ matrix.format }}
+      - name: Build ${{ matrix.format }} verbose
         uses: nick-fields/retry@v3
         if: matrix.platform == 'ios'
         with:
