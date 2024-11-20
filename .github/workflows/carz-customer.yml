@@ -206,17 +206,8 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-      - name: Build ${{ matrix.format }} verbose
-        uses: nick-fields/retry@v3
-        if: matrix.platform == 'ios'
-        with:
-          timeout_minutes: 60
-          max_attempts: 2
-          command: set -o pipefail && bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }} --verbose | xcpretty -c
-
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
-        if: matrix.platform == 'android'
         with:
           timeout_minutes: 60
           max_attempts: 2
