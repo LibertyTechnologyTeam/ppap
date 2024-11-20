@@ -92,7 +92,7 @@ jobs:
         uses: PacificPromise/macos-telegram-action@main
         with:
           type: topic
-          message: "🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}"
+          message: '🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}'
 
       - name: Log value
         run: |
@@ -138,8 +138,8 @@ jobs:
       - name: Setup nodejs
         uses: actions/setup-node@v4
         with:
-          cache: "yarn"
-          node-version-file: ".nvmrc"
+          cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
@@ -168,12 +168,16 @@ jobs:
         if: matrix.platform == 'android'
         with:
           java-version: 21
-          distribution: "temurin"
-          cache: "gradle"
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Setup Android SDK
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
+
+      - name: Select Xcode version
+        if: matrix.platform == 'ios'
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
 
       # - name: Cache ios deriveddata
       #   uses: irgaly/xcode-cache@v1
