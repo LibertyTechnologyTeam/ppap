@@ -184,8 +184,7 @@ jobs:
 
       - name: Fastlane match
         if: matrix.platform == 'ios'
-        # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
-        run: bundle exec fastlane ios certificates
+        run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
 
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
