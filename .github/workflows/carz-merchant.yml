@@ -213,9 +213,9 @@ jobs:
         id: build
         run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      # - name: Deploy ${{ matrix.format }}
-      #   if: success() && steps.build.outcome == 'success'
-      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
+      - name: Deploy ${{ matrix.format }}
+        if: success() && steps.build.outcome == 'success'
+        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
