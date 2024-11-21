@@ -24,7 +24,7 @@ env:
   TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
 
   # config
-  SOURCE_REPOSITORY: LibertyHRM/rn-hrm-mobile
+  SOURCE_REPOSITORY: LibertyHRM/rn-belink-mobile
 
 jobs:
   init:
