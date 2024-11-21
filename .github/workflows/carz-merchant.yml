@@ -193,6 +193,13 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
+      - name: Config environment
+        run: bash .github/scripts/config_environment.sh
+
+      - name: Run yarn install
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: appicon:create
       # - name: Check cache Pods
       #   if: matrix.format == 'IPA'
       #   id: cache-primes
@@ -213,9 +220,9 @@ jobs:
         id: build
         run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      # - name: Deploy ${{ matrix.format }}
-      #   if: success() && steps.build.outcome == 'success'
-      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
+      - name: Deploy ${{ matrix.format }}
+        if: success() && steps.build.outcome == 'success'
+        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'

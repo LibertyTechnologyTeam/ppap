@@ -1,12 +1,12 @@
-name: Carz Customer CI/CD
+name: Exchange Customer CI/CD
 
 on:
   repository_dispatch:
     types:
-      - CarzCustomer-*
+      - ExchangeAgent-*
 
 env:
-  APP_NAME: Carz Customer
+  APP_NAME: Exchange Agent
   GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
   UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
   BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
@@ -24,7 +24,7 @@ env:
   TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
 
   # config
-  SOURCE_REPOSITORY: LibertyCarz/rn-carz-customer
+  SOURCE_REPOSITORY: LibertyExchange/rn-exchange-agent
 
 jobs:
   init:
@@ -92,7 +92,7 @@ jobs:
         uses: PacificPromise/macos-telegram-action@main
         with:
           type: topic
-          message: '🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}'
+          message: "🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}"
 
       - name: Log value
         run: |
@@ -132,14 +132,12 @@ jobs:
           token: ${{ env.GH_PAT }}
           path: .github/data/key
 
-      # - name: Setup env
-      #   run: mv config/env/.env.${{ env.APP_VARIANT }} .env
 
       - name: Setup nodejs
         uses: actions/setup-node@v4
         with:
-          cache: 'yarn'
-          node-version-file: '.nvmrc'
+          cache: "yarn"
+          node-version-file: ".nvmrc"
 
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
@@ -168,48 +166,32 @@ jobs:
         if: matrix.platform == 'android'
         with:
           java-version: 21
-          distribution: 'temurin'
-          cache: 'gradle'
+          distribution: "temurin"
+          cache: "gradle"
 
       - name: Setup Android SDK
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
 
-      - name: Select Xcode version
-        if: matrix.platform == 'ios'
-        run: sudo xcode-select -s /Applications/Xcode_16.1.app
-
-      # - name: Cache ios deriveddata
-      #   uses: irgaly/xcode-cache@v1
-      #   if: matrix.platform == 'ios'
-      #   with:
-      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
-      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
-
       - name: Fastlane match
         if: matrix.platform == 'ios'
-        run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
-
+        # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
+        run: bundle exec fastlane ios certificates
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      - name: Config environment
-        run: bash .github/scripts/config_environment.sh
+      - name: Setup config
+        run: .github/data/scripts/load_build.sh
 
-      - name: Run yarn install
-        uses: borales/actions-yarn@v5
+      - name: Check cache Pods
+        if: matrix.platform == 'IOS'
+        id: cache-pods
+        uses: actions/cache@v4
         with:
-          cmd: appicon:create
-
-      # - name: Check cache Pods
-      #   if: matrix.format == 'IPA'
-      #   id: cache-primes
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ios/Pods
-      #       ios/Podfile.lock
-      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
+          path: |
+            ios/Pods
+            ios/Podfile.lock
+          key: vtd-cache-pods-${{ hashFiles('ios/Podfile.lock') }}        
 
       - name: Pod install
         # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
@@ -218,11 +200,13 @@ jobs:
         run: bundle exec pod install
 
       - name: Build ${{ matrix.format }}
-        id: build
-        run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
       - name: Deploy ${{ matrix.format }}
-        if: success() && steps.build.outcome == 'success'
         run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
