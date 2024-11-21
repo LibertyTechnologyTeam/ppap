@@ -195,6 +195,11 @@ jobs:
 
       - name: Config environment
         run: bash .github/scripts/config_environment.sh
+
+      - name: Run yarn install
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: appicon:create
       # - name: Check cache Pods
       #   if: matrix.format == 'IPA'
       #   id: cache-primes
