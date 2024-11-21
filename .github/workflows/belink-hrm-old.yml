@@ -54,7 +54,7 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-          MATRIX="${{ toJson(env.BUILD_MATRIX) }}"
+          MATRIX="${{ toJson(env.BUILD_MATRIX_IOS) }}"
           if [[ "$REF_NAME" =~ "prd" ]]; then
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
