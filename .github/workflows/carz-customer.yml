@@ -6,7 +6,7 @@ on:
       - CarzCustomer-*
 
 env:
-  APP_NAME: Exchange Customer
+  APP_NAME: Carz Customer
   GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
   UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
   BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
