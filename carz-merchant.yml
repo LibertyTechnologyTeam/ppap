@@ -155,7 +155,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn install
         if: steps.cache-node-module.outputs.cache-hit != 'true'
