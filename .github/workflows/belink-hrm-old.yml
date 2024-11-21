@@ -24,7 +24,7 @@ env:
   TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
 
   # config
-  SOURCE_REPOSITORY: LibertyHRM/rn-hrm-mobile
+  SOURCE_REPOSITORY: LibertyHRM/rn-belink-mobile
 
 jobs:
   init:
@@ -208,14 +208,11 @@ jobs:
 
       # config env
 
-      - name: Load secret files
-        run: bash scripts/load_secret_file.sh
-
       - name: Change version and build number
         run: bash scripts/change_version_and_build_number.sh
 
-      - name: Config environment
-        run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
+      # - name: Config environment
+      #   run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
 
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
