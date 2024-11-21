@@ -209,7 +209,7 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-       - name: Build ${{ matrix.format }}
+      - name: Build ${{ matrix.format }}
         id: build
         run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
