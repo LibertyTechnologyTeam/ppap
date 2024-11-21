@@ -193,6 +193,8 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
+      - name: Config environment
+        run: bash .github/scripts/config_environment.sh
       # - name: Check cache Pods
       #   if: matrix.format == 'IPA'
       #   id: cache-primes
