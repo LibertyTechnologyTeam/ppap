@@ -1,0 +1,230 @@
+name: Carz Customer CI/CD
+
+on:
+  repository_dispatch:
+    types:
+      - CarzCustomer-*
+
+env:
+  APP_NAME: Exchange Customer
+  GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
+  UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
+  BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
+  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
+  # NODE_ENV: production
+  BUILD_MATRIX_IOS: '[{"format":"ipa","name":"macos-15","platform":"ios"}]'
+  BUILD_MATRIX_ANDROID: '[{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
+
+  GH_PAT: ${{ secrets.GH_PAT }}
+  REF_NAME: ${{ github.event.client_payload.ref_name }}
+  TRIGGERING_ACTOR: ${{ github.event.client_payload.triggering_actor }}
+
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_GROUP_ID: ${{ vars.TELEGRAM_GROUP_ID }}
+  TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
+
+  # config
+  SOURCE_REPOSITORY: LibertyCarz/rn-carz-customer
+
+jobs:
+  init:
+    name: Init
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.value }}
+      env: ${{ steps.set-env.outputs.value }}
+      message-information: ${{ steps.get-message-information.outputs.value }}
+      app-version: ${{ steps.get-app-infomation.outputs.version-value }}
+      app-build-number: ${{ steps.get-app-infomation.outputs.build-number-value }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          token: ${{ env.GH_PAT }}
+          ref: ${{ github.event.client_payload.ref_name}}
+
+      - name: Checkout secret
+        uses: actions/checkout@v4
+        with:
+          repository: ItLibertyTechnology/secret
+          token: ${{ env.GH_PAT }}
+          path: .github/data/key
+
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          MATRIX="${{ toJson(env.BUILD_MATRIX) }}"
+          if [[ "$REF_NAME" =~ "prd" ]]; then
+            MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
+          fi
+          # ios only
+          echo "value=$MATRIX" >> $GITHUB_OUTPUT
+
+      - name: Set env
+        id: set-env
+        run: |
+          ENV='dev'
+          if [[ "$REF_NAME" =~ "prd" ]]; then
+            ENV='prd'
+          elif [[ "$REF_NAME" =~ "stg" ]]; then
+            ENV='stg'
+          fi
+          echo "value=$ENV" >> $GITHUB_OUTPUT
+
+      - name: Generate message
+        id: get-message-information
+        timeout-minutes: 1
+        run: |
+          source /dev/stdin <<<"$(curl -s ${{ env.UTILS_SH }})" 
+          echo "value=$(get_message_information)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate app information
+        id: get-app-infomation
+        timeout-minutes: 1
+        run: |
+          source /dev/stdin <<<"$(curl -s ${{ env.UTILS_SH }})" 
+          echo "version-value=$(get_version)" >> "$GITHUB_OUTPUT" 
+          echo "build-number-value=$(get_build_number)" >> "$GITHUB_OUTPUT"
+
+      - name: Send telegram message
+        if: vars.IS_SILENT != 'true'
+        uses: PacificPromise/macos-telegram-action@main
+        with:
+          type: topic
+          message: '🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}'
+
+      - name: Log value
+        run: |
+          echo "tag-source: $REF_NAME"
+          echo "matrix: ${{ steps.set-matrix.outputs.value }}"
+          echo "message-information: ${{ steps.get-message-information.outputs.value }}"
+          echo "version: ${{ steps.get-app-infomation.outputs.version-value }}"
+          echo "build number: ${{ steps.get-app-infomation.outputs.build-number-value }}"
+          echo "env: ${{ steps.set-env.outputs.value }}"
+
+  deploy:
+    name: Deployment ${{ matrix.format }}
+    needs: [init]
+    continue-on-error: true
+    strategy:
+      fail-fast: true
+      matrix:
+        include: ${{ fromJson(needs.init.outputs.matrix) }}
+    runs-on: ${{ matrix.name }}
+    env:
+      APP_VARIANT: ${{ needs.init.outputs.env }}
+      APP_VERSION: ${{ needs.init.outputs.app-version }}
+      APP_BUILD_NUMBER: ${{ needs.init.outputs.app-build-number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          token: ${{ env.GH_PAT }}
+          ref: ${{ github.event.client_payload.ref_name}}
+
+      - name: Checkout secret
+        uses: actions/checkout@v4
+        with:
+          repository: ItLibertyTechnology/secret
+          token: ${{ env.GH_PAT }}
+          path: .github/data/key
+
+      # - name: Setup env
+      #   run: mv config/env/.env.${{ env.APP_VARIANT }} .env
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+          node-version-file: '.nvmrc'
+
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Install fastlane plugins
+        run: bundle exec fastlane install_plugins
+
+      - name: Cache node_module
+        id: cache-node-module
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Run yarn install
+        if: steps.cache-node-module.outputs.cache-hit != 'true'
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: install
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with:
+          java-version: 21
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        if: matrix.platform == 'android'
+        uses: android-actions/setup-android@v3
+
+      - name: Select Xcode version
+        if: matrix.platform == 'ios'
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      # - name: Cache ios deriveddata
+      #   uses: irgaly/xcode-cache@v1
+      #   if: matrix.platform == 'ios'
+      #   with:
+      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
+      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
+
+      - name: Fastlane match
+        if: matrix.platform == 'ios'
+        run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
+
+      - name: Update version and build number
+        run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
+
+      # - name: Check cache Pods
+      #   if: matrix.format == 'IPA'
+      #   id: cache-primes
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ios/Pods
+      #       ios/Podfile.lock
+      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
+
+      - name: Pod install
+        # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
+        if: matrix.format == 'IPA'
+        working-directory: ios
+        run: bundle exec pod install
+
+      - name: Build ${{ matrix.format }}
+        run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
+
+      # - name: Deploy ${{ matrix.format }}
+      #   run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
+
+      # - name: Send telegram message
+      #   if: vars.IS_SILENT != 'true'
+      #   uses: PacificPromise/macos-telegram-action@main
+      #   with:
+      #     type: topic
+      #     message: "✅ - Success ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
+
+      # - name: Send telegram message failure
+      #   if: ${{ failure() && vars.IS_SILENT != 'true' }}
+      #   uses: PacificPromise/macos-telegram-action@main
+      #   with:
+      #     type: topic
+      #     message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
