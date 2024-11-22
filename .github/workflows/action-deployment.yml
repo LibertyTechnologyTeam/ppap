@@ -3,8 +3,8 @@ name: "ACTION: Deployment"
 on:
   workflow_dispatch:
     inputs:
-      project_name:
-        description: "Project"
+      app_name:
+        description: "App"
         default: "InNews"
         required: true
         type: choice
@@ -45,13 +45,13 @@ jobs:
         with:
           default: "none"
           conditionals-with-values: |
-            ${{ inputs.project_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
-            ${{ inputs.project_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
-            ${{ inputs.project_name == 'Carz Customer' }} => LibertyCarz/rn-carz-customer
-            ${{ inputs.project_name == 'Carz Merchant' }} => LibertyCarz/rn-carz-merchant
-            ${{ inputs.project_name == 'Exchange Agent' }} => LibertyExchange/rn-exchange-agent
-            ${{ inputs.project_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
-            ${{ inputs.project_name == 'InNews' }} => InfluenceNews/rn-innews
+            ${{ inputs.app_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
+            ${{ inputs.app_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
+            ${{ inputs.app_name == 'Carz Customer' }} => LibertyCarz/rn-carz-customer
+            ${{ inputs.app_name == 'Carz Merchant' }} => LibertyCarz/rn-carz-merchant
+            ${{ inputs.app_name == 'Exchange Agent' }} => LibertyExchange/rn-exchange-agent
+            ${{ inputs.app_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
+            ${{ inputs.app_name == 'InNews' }} => InfluenceNews/rn-innews
 
       - name: Get repository name
         uses: dkershner6/switch-case-action@v1
@@ -59,13 +59,13 @@ jobs:
         with:
           default: "none"
           conditionals-with-values: |
-            ${{ inputs.project_name == 'Belink HRM' }} => BelinkHrm
-            ${{ inputs.project_name == 'Belink' }} => Belink
-            ${{ inputs.project_name == 'Carz Customer' }} => CarzCustomer
-            ${{ inputs.project_name == 'Carz Merchant' }} => CarzMerchant
-            ${{ inputs.project_name == 'Exchange Agent' }} => ExchangeAgent
-            ${{ inputs.project_name == 'Exchange Customer' }} => ExchangeCustomer
-            ${{ inputs.project_name == 'InNews' }} => InNews
+            ${{ inputs.app_name == 'Belink HRM' }} => BelinkHrm
+            ${{ inputs.app_name == 'Belink' }} => Belink
+            ${{ inputs.app_name == 'Carz Customer' }} => CarzCustomer
+            ${{ inputs.app_name == 'Carz Merchant' }} => CarzMerchant
+            ${{ inputs.app_name == 'Exchange Agent' }} => ExchangeAgent
+            ${{ inputs.app_name == 'Exchange Customer' }} => ExchangeCustomer
+            ${{ inputs.app_name == 'InNews' }} => InNews
 
       - name: Get stage key
         uses: dkershner6/switch-case-action@v1
