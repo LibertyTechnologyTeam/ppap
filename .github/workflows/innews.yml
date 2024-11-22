@@ -1,4 +1,4 @@
-name: InNews CI/CD
+name: 'CI/CD: InNews'
 
 on:
   repository_dispatch:

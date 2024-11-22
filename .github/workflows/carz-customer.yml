@@ -1,4 +1,4 @@
-name: Carz Customer CI/CD
+name: 'CI/CD: Carz Customer'
 
 on:
   repository_dispatch:

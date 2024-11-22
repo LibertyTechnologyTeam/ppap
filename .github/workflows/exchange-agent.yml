@@ -1,4 +1,4 @@
-name: Exchange Agent CI/CD
+name: 'CI/CD: Exchange Agent'
 
 on:
   repository_dispatch:
