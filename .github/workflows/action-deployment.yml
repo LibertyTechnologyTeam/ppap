@@ -1,4 +1,4 @@
-name: "Action: Deployment"
+name: "ACTION: Deployment"
 
 on:
   workflow_dispatch:
