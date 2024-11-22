@@ -76,9 +76,9 @@ jobs:
             ${{ inputs.action_name == 'Build Development' }} => increment_tag dev
             ${{ inputs.action_name == 'Build Staging' }} => increment_tag stg
             ${{ inputs.action_name == 'Build Product' }} => increment_tag prd
-            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch && increment_tag dev
-            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor && increment_tag dev
-            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major && increment_tag dev
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => 'increment_core_tag patch && increment_tag dev'
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => 'increment_core_tag minor && increment_tag dev'
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => 'increment_core_tag major && increment_tag dev'
 
       - name: Checkout
         uses: actions/checkout@v4
