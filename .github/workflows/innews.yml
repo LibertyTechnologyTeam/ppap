@@ -183,12 +183,13 @@ jobs:
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
 
-      - name: Cache ios deriveddata
-        uses: irgaly/xcode-cache@v1
-        if: matrix.platform == 'ios'
-        with:
-          key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
-          restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
+      # the dump thing from shit
+      # - name: Cache ios deriveddata
+      #   uses: irgaly/xcode-cache@v1
+      #   if: matrix.platform == 'ios'
+      #   with:
+      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
+      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
 
       - name: Fastlane match
         if: matrix.platform == 'ios'
