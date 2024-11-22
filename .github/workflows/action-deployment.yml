@@ -1,0 +1,110 @@
+name: "Action: Deployment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: "Project"
+        default: "InNews"
+        required: true
+        type: choice
+        options:
+          - Belink HRM
+          - Belink
+          - Carz Customer
+          - Carz Merchant
+          - Exchange Agent
+          - Exchange Customer
+          - InNews
+      action_name:
+        description: "Action"
+        default: "Increment development environment"
+        required: true
+        type: choice
+        options:
+          - Build Development
+          - Build Staging
+          - Build Product
+          - Nâng patch version (1.0.0 -> 1.0.1)
+          - Nâng minor version (1.0.0 -> 1.1.0)
+          # - Nâng major version (1.0.0 -> 2.0.0)
+      branch_name:
+        description: "Branch"
+        default: "main"
+        required: true
+        type: string
+
+jobs:
+  pre-deployment:
+    name: Pre Deployment
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get repository name
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-repository
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.project_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
+            ${{ inputs.project_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
+            ${{ inputs.project_name == 'Carz Customer' }} => LibertyCarz/rn-carz-customer
+            ${{ inputs.project_name == 'Carz Merchant' }} => LibertyCarz/rn-carz-merchant
+            ${{ inputs.project_name == 'Exchange Agent' }} => LibertyExchange/rn-exchange-agent
+            ${{ inputs.project_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
+            ${{ inputs.project_name == 'InNews' }} => InfluenceNews/rn-innews
+
+      - name: Get repository name
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-dispatch-type
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.project_name == 'Belink HRM' }} => BelinkHrm
+            ${{ inputs.project_name == 'Belink' }} => Belink
+            ${{ inputs.project_name == 'Carz Customer' }} => CarzCustomer
+            ${{ inputs.project_name == 'Carz Merchant' }} => CarzMerchant
+            ${{ inputs.project_name == 'Exchange Agent' }} => ExchangeAgent
+            ${{ inputs.project_name == 'Exchange Customer' }} => ExchangeCustomer
+            ${{ inputs.project_name == 'InNews' }} => InNews
+
+      - name: Get stage key
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-action
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.action_name == 'Build Development' }} => increment_tag dev
+            ${{ inputs.action_name == 'Build Staging' }} => increment_tag stg
+            ${{ inputs.action_name == 'Build Product' }} => increment_tag prd
+            ${{ inputs.action_name == 'Nâng patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch && increment_tag dev
+            ${{ inputs.action_name == 'Nâng minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor && increment_tag dev
+            ${{ inputs.action_name == 'Nâng major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major && increment_tag dev
+        
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.switch-case-repository.outputs.value }}
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ inputs.branch_name }}
+
+      - name: Increment
+        uses: PacificPromise/semantic-versioning-action@main
+        if: ${{ steps.switch-case-action.outputs.value != 'none' }}
+        with:
+          script: ${{ steps.switch-case-action.outputs.value }}
+
+      # - name: Prepare
+      #   id: parepare-step
+      #   run: |
+      #     source /dev/stdin <<<"$(curl -s https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh)"
+      #     echo "tag-source=$(get_tag_source)" >> "$GITHUB_OUTPUT"
+      #     echo "triggering-actor=${{ github.triggering_actor }}" >> "$GITHUB_OUTPUT"
+
+      # - name: Deploy Stage
+      #   uses: fjogeleit/http-request-action@v1
+      #   with:
+      #     url: "https://api.github.com/repos/LibertyTechnologyTeam/ppap/dispatches"
+      #     method: "POST"
+      #     customHeaders: '{"Accept": "application/vnd.github+json", "Authorization": "Bearer ${{ secrets.GH_PAT }}", "X-GitHub-Api-Version": "2022-11-28"}'
+      #     data: '{"event_type": "InNews-${{ steps.parepare-step.outputs.tag-source }}~${{ steps.parepare-step.outputs.triggering-actor }}", "client_payload": {"ref_name": "${{ steps.parepare-step.outputs.tag-source }}", "triggering_actor": "${{ steps.parepare-step.outputs.triggering-actor }}"}}'
