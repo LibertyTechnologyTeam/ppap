@@ -55,7 +55,7 @@ jobs:
         id: set-matrix
         run: |
           MATRIX="${{ toJson(env.BUILD_MATRIX) }}"
-          if [[ "$REF_NAME" =~ "prd" ]]; then
+          if [[ "$REF_NAME" =~ "pro" ]]; then
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
           # ios only
@@ -65,7 +65,7 @@ jobs:
         id: set-env
         run: |
           ENV='dev'
-          if [[ "$REF_NAME" =~ "prd" ]]; then
+          if [[ "$REF_NAME" =~ "pro" ]]; then
             ENV='prd'
           elif [[ "$REF_NAME" =~ "stg" ]]; then
             ENV='stg'
