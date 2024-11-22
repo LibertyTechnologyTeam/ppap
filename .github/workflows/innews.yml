@@ -1,4 +1,4 @@
-name: PPAP
+name: InNews CI/CD
 
 on:
   repository_dispatch:
