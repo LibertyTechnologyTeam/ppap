@@ -11,7 +11,7 @@ env:
 
   GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
   UTILS_SH: ${{ vars.UTILS_SH_FILE }}
-  
+
   BUILD_MATRIX: '${{ vars.BUILD_MATRIX }}'
   BUILD_MATRIX_PRD: '${{ vars.BUILD_MATRIX_PRD }}'
 
@@ -147,12 +147,12 @@ jobs:
       - name: Install fastlane plugins
         run: bundle exec fastlane install_plugins
 
-      # - name: Cache node_module
-      #   id: cache-node-module
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: node_modules
-      #     key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+      - name: Cache node_module
+        id: cache-node-module
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn install
         if: steps.cache-node-module.outputs.cache-hit != 'true'
