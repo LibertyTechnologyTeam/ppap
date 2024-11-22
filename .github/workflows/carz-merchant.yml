@@ -1,4 +1,4 @@
-name: Carz Merchant CI/CD
+name: 'CI/CD: Carz Merchant'
 
 on:
   repository_dispatch:
@@ -175,10 +175,6 @@ jobs:
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
 
-      - name: Select Xcode version
-        if: matrix.platform == 'ios'
-        run: sudo xcode-select -s /Applications/Xcode_16.1.app
-
       # - name: Cache ios deriveddata
       #   uses: irgaly/xcode-cache@v1
       #   if: matrix.platform == 'ios'
@@ -186,15 +182,15 @@ jobs:
       #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
       #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
 
+      - name: Config environment
+        run: bash .github/scripts/config_environment.sh
+
       - name: Fastlane match
         if: matrix.platform == 'ios'
         run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
 
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
-
-      - name: Config environment
-        run: bash .github/scripts/config_environment.sh
 
       - name: Run yarn install
         uses: borales/actions-yarn@v5

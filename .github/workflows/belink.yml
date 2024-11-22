@@ -1,4 +1,4 @@
-name: Belink CI/CD
+name: 'CI/CD: Belink'
 
 on:
   repository_dispatch:
