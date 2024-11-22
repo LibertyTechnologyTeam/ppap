@@ -106,8 +106,8 @@ jobs:
           echo "Setting Git config with username: $ACTOR and email: $EMAIL"
 
           # Configure git
-          git config --global user.name "$ACTOR"
-          git config --global user.email "$EMAIL"
+          git config user.name "$ACTOR"
+          git config user.email "$EMAIL"
 
       - name: Increment
         uses: PacificPromise/semantic-versioning-action@main
