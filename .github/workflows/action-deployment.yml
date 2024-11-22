@@ -67,18 +67,28 @@ jobs:
             ${{ inputs.app_name == 'Exchange Customer' }} => ExchangeCustomer
             ${{ inputs.app_name == 'InNews' }} => InNews
 
-      - name: Get stage key
+      - name: Get increment tag
         uses: dkershner6/switch-case-action@v1
-        id: switch-case-action
+        id: switch-case-increment-tag
         with:
           default: "none"
           conditionals-with-values: |
             ${{ inputs.action_name == 'Build Development' }} => increment_tag dev
             ${{ inputs.action_name == 'Build Staging' }} => increment_tag stg
             ${{ inputs.action_name == 'Build Product' }} => increment_tag prd
-            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => 'increment_core_tag patch && increment_tag dev'
-            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => 'increment_core_tag minor && increment_tag dev'
-            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => 'increment_core_tag major && increment_tag dev'
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_tag dev
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_tag dev
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_tag dev
+
+      - name: Get increment core tag
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-increment-core-tag
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -109,8 +119,14 @@ jobs:
           git config user.name "$ACTOR"
           git config user.email "$EMAIL"
 
-      - name: Increment
+      - name: Increment version
         uses: PacificPromise/semantic-versioning-action@main
-        if: ${{ steps.switch-case-action.outputs.value != 'none' }}
+        if: ${{ steps.switch-case-increment-core-tag.outputs.value != 'none' }}
         with:
-          script: ${{ steps.switch-case-action.outputs.value }}
+          script: ${{ steps.switch-case-increment-core-tag.outputs.value }}
+
+      - name: Increment tag
+        uses: PacificPromise/semantic-versioning-action@main
+        if: ${{ steps.switch-case-increment-tag.outputs.value != 'none' }}
+        with:
+          script: ${{ steps.switch-case-increment-tag.outputs.value }}
