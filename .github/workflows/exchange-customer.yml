@@ -7,13 +7,12 @@ on:
 
 env:
   APP_NAME: Exchange Customer
-  GIT_SSH_COMMAND: chmod 400 ${{ github.workspace }}/.github/data/key/rsa/id && ssh -i ${{ github.workspace }}/.github/data/key/rsa/id
-  UTILS_SH: https://gist.githubusercontent.com/tuanngocptn/c3868a202e37479e42471a9217d810d9/raw/lbt_mb_ci_utils.sh
-  BUILD_MATRIX: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
-  BUILD_MATRIX_PRD: '[{"format":"ipa","name":"macos-15","platform":"ios"},{"format":"apk","name":"ubuntu-22.04","platform":"android"},{"format":"aab","name":"ubuntu-22.04","platform":"android"}]'
-  # NODE_ENV: production
-  BUILD_MATRIX_IOS: '[{"format":"ipa","name":"macos-15","platform":"ios"}]'
-  BUILD_MATRIX_ANDROID: '[{"format":"apk","name":"ubuntu-22.04","platform":"android"}]'
+  SOURCE_REPOSITORY: LibertyExchange/rn-exchange-customer
+
+  GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
+  UTILS_SH: ${{ vars.UTILS_SH_FILE }}
+  BUILD_MATRIX: '${{ vars.BUILD_MATRIX }}'
+  BUILD_MATRIX_PRD: '${{ vars.BUILD_MATRIX_PRD }}'
 
   GH_PAT: ${{ secrets.GH_PAT }}
   REF_NAME: ${{ github.event.client_payload.ref_name }}
@@ -22,9 +21,6 @@ env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_GROUP_ID: ${{ vars.TELEGRAM_GROUP_ID }}
   TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
-
-  # config
-  SOURCE_REPOSITORY: LibertyExchange/rn-exchange-customer
 
 jobs:
   init:
