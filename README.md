@@ -1,6 +1,4 @@
-# ppap
-
-_Production Part Approval Process (Quy trình Phê duyệt Sản xuất)._
+# PPAP - Production Part Approval Process
 
 <div align="center">
 
