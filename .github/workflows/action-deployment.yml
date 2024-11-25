@@ -43,7 +43,7 @@ jobs:
         uses: dkershner6/switch-case-action@v1
         id: switch-case-repository
         with:
-          default: "none"
+          default: "InfluenceNews/rn-innews"
           conditionals-with-values: |
             ${{ inputs.app_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
             ${{ inputs.app_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
