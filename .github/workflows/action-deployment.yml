@@ -53,19 +53,15 @@ jobs:
             ${{ inputs.app_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
             ${{ inputs.app_name == 'InNews' }} => InfluenceNews/rn-innews
 
-      - name: Get repository name
+      - name: Get increment core tag
         uses: dkershner6/switch-case-action@v1
-        id: switch-case-dispatch-type
+        id: switch-case-increment-core-tag
         with:
           default: "none"
           conditionals-with-values: |
-            ${{ inputs.app_name == 'Belink HRM' }} => BelinkHrm
-            ${{ inputs.app_name == 'Belink' }} => Belink
-            ${{ inputs.app_name == 'Carz Customer' }} => CarzCustomer
-            ${{ inputs.app_name == 'Carz Merchant' }} => CarzMerchant
-            ${{ inputs.app_name == 'Exchange Agent' }} => ExchangeAgent
-            ${{ inputs.app_name == 'Exchange Customer' }} => ExchangeCustomer
-            ${{ inputs.app_name == 'InNews' }} => InNews
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major
 
       - name: Get increment tag
         uses: dkershner6/switch-case-action@v1
@@ -79,16 +75,6 @@ jobs:
             ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_tag dev
             ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_tag dev
             ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_tag dev
-
-      - name: Get increment core tag
-        uses: dkershner6/switch-case-action@v1
-        id: switch-case-increment-core-tag
-        with:
-          default: "none"
-          conditionals-with-values: |
-            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch
-            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor
-            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major
 
       - name: Checkout
         uses: actions/checkout@v4
