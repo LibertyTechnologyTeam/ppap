@@ -18,6 +18,7 @@ env:
   GH_PAT: ${{ secrets.GH_PAT }}
   REF_NAME: ${{ github.event.client_payload.ref_name }}
   TRIGGERING_ACTOR: ${{ github.event.client_payload.triggering_actor }}
+  FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
 
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_GROUP_ID: ${{ vars.TELEGRAM_GROUP_ID }}
