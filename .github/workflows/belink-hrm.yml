@@ -205,9 +205,8 @@ jobs:
         run: bundle exec pod install
 
       # config env
-
-      - name: Load secret files
-        run: bash scripts/load_secret_file_${{ needs.init.outputs.env }}.sh
+      # - name: Load secret files
+      #   run: bash scripts/load_secret_file_${{ needs.init.outputs.env }}.sh
 
       - name: Change version and build number
         run: bash scripts/change_version_and_build_number.sh
