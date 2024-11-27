@@ -190,7 +190,7 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      - name: Run yarn install
+      - name: Run yarn icon
         uses: borales/actions-yarn@v5
         with:
           cmd: appicon:create
