@@ -214,6 +214,11 @@ jobs:
       - name: Config environment
         run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
 
+      - name: Run yarn icon
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: appicon:create
+
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
         with:
