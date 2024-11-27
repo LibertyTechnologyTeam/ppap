@@ -1,0 +1,118 @@
+name: "ACTION: Deployment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: "App"
+        default: "InNews"
+        required: true
+        type: choice
+        options:
+          - Belink HRM
+          - Belink
+          - Carz Customer
+          - Carz Merchant
+          - Exchange Agent
+          - Exchange Customer
+          - InNews
+      action_name:
+        description: "Action"
+        default: "Increment development environment"
+        required: true
+        type: choice
+        options:
+          - Build Development
+          - Build Staging
+          - Build Product
+          - Up patch version (1.0.0 -> 1.0.1)
+          - Up minor version (1.0.0 -> 1.1.0)
+          # - Up major version (1.0.0 -> 2.0.0)
+      branch_name:
+        description: "Branch"
+        default: "main"
+        required: true
+        type: string
+
+jobs:
+  deployment:
+    name: Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository name
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-repository
+        with:
+          default: "InfluenceNews/rn-innews"
+          conditionals-with-values: |
+            ${{ inputs.app_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
+            ${{ inputs.app_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
+            ${{ inputs.app_name == 'Carz Customer' }} => LibertyCarz/rn-carz-customer
+            ${{ inputs.app_name == 'Carz Merchant' }} => LibertyCarz/rn-carz-merchant
+            ${{ inputs.app_name == 'Exchange Agent' }} => LibertyExchange/rn-exchange-agent
+            ${{ inputs.app_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
+            ${{ inputs.app_name == 'InNews' }} => InfluenceNews/rn-innews
+
+      - name: Get increment core tag
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-increment-core-tag
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_core_tag patch
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_core_tag minor
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_core_tag major
+
+      - name: Get increment tag
+        uses: dkershner6/switch-case-action@v1
+        id: switch-case-increment-tag
+        with:
+          default: "none"
+          conditionals-with-values: |
+            ${{ inputs.action_name == 'Build Development' }} => increment_tag dev
+            ${{ inputs.action_name == 'Build Staging' }} => increment_tag stg
+            ${{ inputs.action_name == 'Build Product' }} => increment_tag prd
+            ${{ inputs.action_name == 'Up patch version (1.0.0 -> 1.0.1)' }} => increment_tag dev
+            ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_tag dev
+            ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_tag dev
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.switch-case-repository.outputs.value }}
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ inputs.branch_name }}
+
+      - name: Set Git Config with Actor Info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the actor's username
+          ACTOR="${{ github.actor }}"
+
+          # Fetch actor's email using GitHub API
+          EMAIL=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/users/$ACTOR | jq -r '.email')
+
+          # If email is null, use a fallback
+          if [ "$EMAIL" == "null" ] || [ -z "$EMAIL" ]; then
+            EMAIL="$ACTOR@users.noreply.github.com"
+          fi
+
+          echo "Setting Git config with username: $ACTOR and email: $EMAIL"
+
+          # Configure git
+          git config user.name "$ACTOR"
+          git config user.email "$EMAIL"
+
+      - name: Increment version
+        uses: PacificPromise/semantic-versioning-action@main
+        if: ${{ steps.switch-case-increment-core-tag.outputs.value != 'none' }}
+        with:
+          script: ${{ steps.switch-case-increment-core-tag.outputs.value }}
+
+      - name: Increment tag
+        uses: PacificPromise/semantic-versioning-action@main
+        if: ${{ steps.switch-case-increment-tag.outputs.value != 'none' }}
+        with:
+          script: ${{ steps.switch-case-increment-tag.outputs.value }}
