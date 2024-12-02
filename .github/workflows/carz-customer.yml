@@ -87,7 +87,7 @@ jobs:
 
       - name: Send telegram message
         if: vars.IS_SILENT != 'true'
-        uses: PacificPromise/macos-telegram-action@main
+        uses: tuanngocptn/macos-telegram-action@v1
         with:
           type: topic
           message: '🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}'
@@ -221,14 +221,14 @@ jobs:
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
-      #   uses: PacificPromise/macos-telegram-action@main
+      #   uses: tuanngocptn/macos-telegram-action@v1
       #   with:
       #     type: topic
       #     message: "✅ - Success ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
 
       # - name: Send telegram message failure
       #   if: ${{ failure() && vars.IS_SILENT != 'true' }}
-      #   uses: PacificPromise/macos-telegram-action@main
+      #   uses: tuanngocptn/macos-telegram-action@v1
       #   with:
       #     type: topic
       #     message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
