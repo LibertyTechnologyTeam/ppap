@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_NAME: Belink HRM
-  SOURCE_REPOSITORY: LibertyHRM/rn-belink-mobile
+  APP_NAME: InNews
+  SOURCE_REPOSITORY: InfluenceNews/rn-innews
 
   GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
   UTILS_SH: ${{ vars.UTILS_SH_FILE }}
@@ -14,7 +14,7 @@ env:
   BUILD_MATRIX_PRD: "${{ vars.BUILD_MATRIX_PRD }}"
 
   GH_PAT: ${{ secrets.GH_PAT }}
-  REF_NAME: v2.3.5-dev+2
+  REF_NAME: v0.0.3-dev+3
   TRIGGERING_ACTOR: tuanngocptn
   FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
 
@@ -38,7 +38,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPOSITORY }}
           token: ${{ env.GH_PAT }}
-          ref: v2.3.5-dev+2
+          ref: v0.0.3-dev+3
 
       - name: Checkout secret
         uses: actions/checkout@v4
