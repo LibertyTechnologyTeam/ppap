@@ -1,4 +1,4 @@
-name: "CI/CD: Belink"
+name: "CI/CD: Test"
 
 on:
   workflow_dispatch:
