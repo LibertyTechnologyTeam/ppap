@@ -85,7 +85,7 @@ jobs:
 
       - name: Send telegram message
         if: vars.IS_SILENT != 'true'
-        uses: tuanngocptn/macos-telegram-action@v1
+        uses: tuanngocptn/macos-telegram-action@main
         with:
           type: topic
           message: "🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}"
