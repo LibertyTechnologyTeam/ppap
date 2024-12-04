@@ -173,52 +173,31 @@ jobs:
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
 
-      # - name: Cache ios deriveddata
-      #   uses: irgaly/xcode-cache@v1
-      #   if: matrix.platform == 'ios'
-      #   with:
-      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
-      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
-
       - name: Fastlane match
         if: matrix.platform == 'ios'
         # run: bundle exec fastlane ios certificates && bundle exec fastlane ios update_settings
         run: bundle exec fastlane ios certificates
-
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
-      # - name: Check cache Pods
-      #   if: matrix.format == 'IPA'
-      #   id: cache-primes
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ios/Pods
-      #       ios/Podfile.lock
-      #     key: vtd-cache-pods-${{ hashFiles('pubspec.lock') }}
+      - name: Setup config
+        run: .github/data/scripts/load_build.sh
+
+      - name: Check cache Pods
+        if: matrix.platform == 'IOS'
+        id: cache-pods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ios/Podfile.lock
+          key: belink-hrm-cache-pods-${{ hashFiles('ios/Podfile.lock') }}        
 
       - name: Pod install
         # if: ${{ (matrix.format == 'IPA') && (steps.cache-primes.outputs.cache-hit != 'true') }}
         if: matrix.format == 'IPA'
         working-directory: ios
         run: bundle exec pod install
-
-      # config env
-      # - name: Load secret files
-      #   run: bash scripts/load_secret_file_${{ needs.init.outputs.env }}.sh
-
-      - name: Change version and build number
-        run: bash scripts/change_version_and_build_number.sh
-
-      - name: Config environment
-        run: bash scripts/load_build_configure_${{ needs.init.outputs.env }}.sh
-
-      - name: Run yarn icon
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: appicon:create
-
       - name: Build ${{ matrix.format }}
         uses: nick-fields/retry@v3
         with:
@@ -227,7 +206,7 @@ jobs:
           command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
       - name: Deploy ${{ matrix.format }}
-        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}_${{ env.APP_VARIANT }}
+        run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
       # - name: Send telegram message
       #   if: vars.IS_SILENT != 'true'
