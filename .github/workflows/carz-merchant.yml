@@ -159,7 +159,7 @@ jobs:
         if: steps.cache-node-module.outputs.cache-hit != 'true'
         uses: borales/actions-yarn@v5
         with:
-          cmd: install
+          cmd: install --network-concurrency 1
 
       - name: Set up JDK
         uses: actions/setup-java@v4
