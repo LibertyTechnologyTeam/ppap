@@ -208,16 +208,16 @@ jobs:
       - name: Deploy ${{ matrix.format }}
         run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
-      # - name: Send telegram message
-      #   if: vars.IS_SILENT != 'true'
-      #   uses: tuanngocptn/macos-telegram-action@v1
-      #   with:
-      #     type: topic
-      #     message: "✅ - Success ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
+      - name: Send telegram message
+        if: vars.IS_SILENT != 'true'
+        uses: tuanngocptn/macos-telegram-action@v1
+        with:
+          type: topic
+          message: "✅ - Success ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
 
-      # - name: Send telegram message failure
-      #   if: ${{ failure() && vars.IS_SILENT != 'true' }}
-      #   uses: tuanngocptn/macos-telegram-action@v1
-      #   with:
-      #     type: topic
-      #     message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
+      - name: Send telegram message failure
+        if: ${{ failure() && vars.IS_SILENT != 'true' }}
+        uses: tuanngocptn/macos-telegram-action@v1
+        with:
+          type: topic
+          message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
