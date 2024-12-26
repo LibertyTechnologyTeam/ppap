@@ -76,7 +76,7 @@ jobs:
             ${{ inputs.action_name == 'Up minor version (1.0.0 -> 1.1.0)' }} => increment_tag dev
             ${{ inputs.action_name == 'Up major version (1.0.0 -> 2.0.0)' }} => increment_tag dev
 
-      - name: Checkout
+      - name: Checkout ${{ inputs.app_name }} ${{ inputs.branch_name }}
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.switch-case-repository.outputs.value }}
