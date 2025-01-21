@@ -67,6 +67,8 @@ jobs:
             ENV='prd'
           elif [[ "$REF_NAME" =~ "stg" ]]; then
             ENV='stg'
+          elif [[ "$REF_NAME" =~ "merchant" ]]; then
+            ENV='merchant'
           fi
           echo "value=$ENV" >> $GITHUB_OUTPUT
 
