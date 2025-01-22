@@ -55,6 +55,8 @@ jobs:
           MATRIX="${{ toJson(env.BUILD_MATRIX) }}"
           if [[ "$REF_NAME" =~ "prd" ]]; then
             MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
+          elif [[ "$REF_NAME" =~ "merchant" ]]; then
+            MATRIX="${{ toJson(env.BUILD_MATRIX_PRD) }}"
           fi
           # ios only
           echo "value=$MATRIX" >> $GITHUB_OUTPUT
