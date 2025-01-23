@@ -227,7 +227,7 @@ jobs:
           message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
 
       - uses: actions/upload-artifact@v4
-        if: ${{ "$REF_NAME" =~ "merchant" }}
+        if: ${{ "env.REF_NAME =~ "merchant" }}
         with:
           name: Upload merchant aab
           path: ./build/android/outputs/bundle/merchantRelease/app-merchant-release.aab
