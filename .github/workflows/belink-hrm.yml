@@ -209,8 +209,9 @@ jobs:
           max_attempts: 2
           command: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
 
-      - uses: actions/upload-artifact@v4
-        # if: ${{ env.REF_NAME == 'merchant' }}
+      - name: Upload merchant aab
+        if: env.REF_NAME == 'merchant'
+        uses: actions/upload-artifact@v4
         with:
           name: Upload merchant aab
           path: ./build/android/outputs/bundle/merchantRelease/app-merchant-release.aab
