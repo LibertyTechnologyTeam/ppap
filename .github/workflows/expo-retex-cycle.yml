@@ -110,7 +110,7 @@ jobs:
         include: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.name }}
     env:
-      APP_VARIANT: ${{ needs.init.outputs.env }}
+      NODE_ENV: ${{ needs.init.outputs.env }}
       APP_VERSION: ${{ needs.init.outputs.app-version }}
       APP_BUILD_NUMBER: ${{ needs.init.outputs.app-build-number }}
 
@@ -130,7 +130,7 @@ jobs:
           path: .github/data/key
 
       - name: Setup env
-        run: mv config/env/.env.${{ env.APP_VARIANT }} .env
+        run: mv config/env/.env.${{ env.NODE_ENV }} .env
 
       - name: Setup nodejs
         uses: actions/setup-node@v4
@@ -166,13 +166,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ios
-          key: ${{ matrix.platform }}-${{ env.APP_VARIANT }}-cache-prebuild-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+          key: ${{ matrix.platform }}-${{ env.NODE_ENV }}-cache-prebuild-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run expo prebuild ${{ matrix.platform }}
         if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
         uses: borales/actions-yarn@v5
         with:
-          cmd: prebuild:${{ env.APP_VARIANT }} --platform ${{ matrix.platform }}
+          cmd: prebuild:${{ env.NODE_ENV }} --platform ${{ matrix.platform }}
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -191,8 +191,8 @@ jobs:
       #   uses: irgaly/xcode-cache@v1
       #   if: matrix.platform == 'ios'
       #   with:
-      #     key: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-${{ github.sha }}
-      #     restore-keys: xcode-cache-deriveddata-${{ env.APP_VARIANT }}-${{ github.workflow }}-
+      #     key: xcode-cache-deriveddata-${{ env.NODE_ENV }}-${{ github.workflow }}-${{ github.sha }}
+      #     restore-keys: xcode-cache-deriveddata-${{ env.NODE_ENV }}-${{ github.workflow }}-
 
       - name: Fastlane match
         if: matrix.platform == 'ios'
