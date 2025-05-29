@@ -171,12 +171,6 @@ jobs:
             ${{ matrix.platform }}-${{ env.NODE_ENV }}-prebuild-v2-${{ hashFiles('app.config.js', 'package.json', 'expo.json') }}-
             ${{ matrix.platform }}-${{ env.NODE_ENV }}-prebuild-v2-
 
-      - name: Run expo prebuild ${{ matrix.platform }}
-        if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: prebuild:${{ env.NODE_ENV }} --platform ${{ matrix.platform }}
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         if: matrix.platform == 'android'
@@ -203,6 +197,12 @@ jobs:
 
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
+      
+      - name: Run expo prebuild ${{ matrix.platform }}
+        if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: prebuild:${{ env.NODE_ENV }} --platform ${{ matrix.platform }} --clean
 
       - name: Build ${{ matrix.format }}
         run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
