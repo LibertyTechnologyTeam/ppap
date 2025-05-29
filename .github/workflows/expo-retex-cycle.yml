@@ -201,6 +201,11 @@ jobs:
       - name: Update version and build number
         run: bundle exec fastlane ${{ matrix.platform }} update_version_and_build_number
 
+      - name: Pod install
+        if: matrix.platform == 'ios'
+        working-directory: ios
+        run: bundle exec pod install
+
       - name: Build ${{ matrix.format }}
         run: bundle exec fastlane ${{ matrix.platform }} build_${{ matrix.format }}
         
