@@ -166,7 +166,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ios
-          key: ${{ matrix.platform }}-${{ env.NODE_ENV }}-cache-prebuild-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
+          key: ${{ matrix.platform }}-${{ env.NODE_ENV }}-prebuild-v2-${{ hashFiles('app.config.js', 'package.json', 'expo.json', '.expo/**') }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ matrix.platform }}-${{ env.NODE_ENV }}-prebuild-v2-${{ hashFiles('app.config.js', 'package.json', 'expo.json') }}-
+            ${{ matrix.platform }}-${{ env.NODE_ENV }}-prebuild-v2-
 
       - name: Run expo prebuild ${{ matrix.platform }}
         if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
