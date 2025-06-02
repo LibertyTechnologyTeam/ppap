@@ -20,9 +20,7 @@ env:
   TRIGGERING_ACTOR: ${{ github.event.client_payload.triggering_actor }}
   FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
 
-  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  TELEGRAM_GROUP_ID: ${{ vars.TELEGRAM_GROUP_ID }}
-  TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
+  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
 jobs:
   init:
@@ -85,11 +83,9 @@ jobs:
           echo "version-value=$(get_version)" >> "$GITHUB_OUTPUT" 
           echo "build-number-value=$(get_build_number)" >> "$GITHUB_OUTPUT"
 
-      - name: Send telegram message
-        if: vars.IS_SILENT != 'true'
-        uses: tuanngocptn/macos-telegram-action@v1
+      - name: Send message
+        uses: tuanngocptn/discord-action@main
         with:
-          type: topic
           message: '🎬 -  Start build: ${{ steps.get-message-information.outputs.value }}'
 
       - name: Log value
@@ -219,16 +215,13 @@ jobs:
         if: success() && steps.build.outcome == 'success'
         run: bundle exec fastlane ${{ matrix.platform }} deploy_${{ matrix.format }}
 
-      - name: Send telegram message
-        if: vars.IS_SILENT != 'true'
-        uses: tuanngocptn/macos-telegram-action@v1
+      - name: Send message
+        uses: tuanngocptn/discord-action@main
         with:
-          type: topic
           message: "✅ - Success ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
 
-      - name: Send telegram message failure
-        if: ${{ failure() && vars.IS_SILENT != 'true' }}
-        uses: tuanngocptn/macos-telegram-action@v1
+      - name: Send message
+        if: failure()
+        uses: tuanngocptn/discord-action@main
         with:
-          type: topic
           message: "💥 - Failure ${{ matrix.format }}: ${{ needs.init.outputs.message-information }}"
