@@ -8,6 +8,7 @@ on:
 env:
   APP_NAME: TXNG - Cao su Thuận Lợi
   SOURCE_REPOSITORY: ThuanLoiRubber/expo-retex-cycle
+  DISABLE_NODE_CACHE: 'true'
 
   GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
   UTILS_SH: ${{ vars.UTILS_SH_FILE }}
@@ -144,6 +145,7 @@ jobs:
         run: bundle exec fastlane install_plugins
 
       - name: Cache node_module
+        if: env.DISABLE_NODE_CACHE != 'true'
         id: cache-node-module
         uses: actions/cache@v4
         with:
@@ -151,7 +153,7 @@ jobs:
           key: ${{ matrix.platform }}-cache-node-module-${{ hashFiles('app.config.js') }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn install
-        if: steps.cache-node-module.outputs.cache-hit != 'true'
+        if: env.DISABLE_NODE_CACHE == 'true' || steps.cache-node-module.outputs.cache-hit != 'true'
         uses: borales/actions-yarn@v5
         with:
           cmd: install --network-concurrency 1
