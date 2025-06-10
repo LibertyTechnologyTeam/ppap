@@ -8,7 +8,8 @@ on:
 env:
   APP_NAME: TXNG - Cao su Thuận Lợi
   SOURCE_REPOSITORY: ThuanLoiRubber/expo-retex-cycle
-  DISABLE_NODE_CACHE: 'true'
+  DISABLE_NODE_CACHE: 'false'
+  DISABLE_IOS_CACHE: 'true'
 
   GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
   UTILS_SH: ${{ vars.UTILS_SH_FILE }}
@@ -159,7 +160,7 @@ jobs:
           cmd: install --network-concurrency 1
 
       - name: Cache ios folder
-        if: matrix.platform == 'ios'
+        if: matrix.platform == 'ios' && env.DISABLE_IOS_CACHE != 'true'
         id: cache-prebuild
         uses: actions/cache@v4
         with:
@@ -190,7 +191,7 @@ jobs:
       #     restore-keys: xcode-cache-deriveddata-${{ env.NODE_ENV }}-${{ github.workflow }}-
 
       - name: Run expo prebuild ${{ matrix.platform }}
-        if: ${{ (matrix.platform == 'android') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
+        if: ${{ (matrix.platform == 'android') || (env.DISABLE_IOS_CACHE == 'true') || (steps.cache-prebuild.outputs.cache-hit != 'true') }}
         uses: borales/actions-yarn@v5
         with:
           cmd: prebuild:${{ env.NODE_ENV }} --platform ${{ matrix.platform }} --clean
