@@ -47,8 +47,8 @@ jobs:
           conditionals-with-values: |
             ${{ inputs.app_name == 'Belink HRM' }} => LibertyHRM/rn-hrm-mobile
             ${{ inputs.app_name == 'Belink' }} => LibertyHRM/rn-belink-mobile
-            ${{ inputs.app_name == 'Carz Customer' }} => LibertyCarz/rn-carz-customer
-            ${{ inputs.app_name == 'Carz Merchant' }} => LibertyCarz/rn-carz-merchant
+            ${{ inputs.app_name == 'Carz Customer' }} => CarzVN/rn-carz-customer
+            ${{ inputs.app_name == 'Carz Merchant' }} => CarzVN/rn-carz-merchant
             ${{ inputs.app_name == 'Exchange Agent' }} => LibertyExchange/rn-exchange-agent
             ${{ inputs.app_name == 'Exchange Customer' }} => LibertyExchange/rn-exchange-customer
             ${{ inputs.app_name == 'InNews' }} => InfluenceNews/rn-innews
