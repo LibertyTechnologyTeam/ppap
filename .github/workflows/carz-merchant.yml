@@ -7,7 +7,7 @@ on:
 
 env:
   APP_NAME: Carz Merchant
-  SOURCE_REPOSITORY: LibertyCarz/rn-carz-merchant
+  SOURCE_REPOSITORY: CarzVN/rn-carz-merchant
 
   GIT_SSH_COMMAND: ${{ vars.GIT_SSH_COMMAND }}
   UTILS_SH: ${{ vars.UTILS_SH_FILE }}
